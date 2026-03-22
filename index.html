@@ -352,7 +352,7 @@
 <div id="toast">Flux indisponible</div>
 
 <!-- Footer -->
-<div class="footer">Sources : iptv-org &bull; Free-TV &bull; schumijo &bull; iptv-ch &bull; Rakuten TV &bull; Netplus</div>
+<div class="footer">Sources : iptv-org &bull; Free-TV &bull; schumijo &bull; iptv-ch &bull; Rakuten TV &bull; Pluto TV &bull; Netplus</div>
 
 <script>
 // Register Service Worker for PWA
@@ -434,6 +434,10 @@ const channels = [
   {cat:"Sport", icon:"\u26BD", name:"GLORY KICKBOXING", url:"https://6f972d29.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWV1X0dsb3J5S2lja2JveGluZ19ITFM/playlist.m3u8"},
   {cat:"Sport", icon:"\u26BD", name:"PFL MMA", url:"https://a883593c.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWV1X1BGTE1NQV9ITFM/playlist.m3u8"},
   {cat:"Sport", icon:"\u26BD", name:"MOTORVISION TV", url:"https://d39g1vxj2ef6in.cloudfront.net/v1/master/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod-rakuten-stitched/master.m3u8?ads.xumo_channelId=88883047"},
+  {cat:"Sport", icon:"\u26BD", name:"UFC (Pluto TV)", url:"https://jmp2.uk/plu-67921b78b83355184c667770.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"DAZN COMBAT", url:"https://jmp2.uk/plu-64d626ac9b414d000820e2fc.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"TOP GEAR", url:"https://jmp2.uk/plu-64c1093824ade50008bd117f.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"TURBO", url:"https://jmp2.uk/plu-66f55c3955567d0008ef9b68.m3u8"},
 
   // ── SPORT MULTIPLEX ──
   {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"L'\u00c9QUIPE LIVE 1", url:"https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/lequipe/l-equipe-live-1-dm.m3u8"},
@@ -474,6 +478,23 @@ const channels = [
   {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"MYTIME MOVIE FRANCE", url:"https://mytimemoviefrance-rakuten.amagi.tv/playlist.m3u8"},
   {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"GRJNGO WESTERNS", url:"https://d46c0ebf9ef94053848fdd7b1f2f6b90.mediatailor.eu-central-1.amazonaws.com/v1/master/81bfcafb76f9c947b24574657a9ce7fe14ad75c0/live-prod/a5fc1b02-5945-11ef-a2df-87241c204d22/0/master.m3u8?country=fr&vendor=rakuten"},
   {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"BREF CIN\u00c9MA (Courts M\u00e9trages)", url:"https://lagenceducourtmetrage-brefcinema-01-eu.rakuten.wurl.tv/playlist.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV CIN\u00c9", url:"https://jmp2.uk/plu-5f8ed0f17564a300082b676a.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV CIN\u00c9 ACTION", url:"https://jmp2.uk/plu-5f8ed1ff5c39700007e2204a.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV CIN\u00c9 R\u00c9TRO", url:"https://jmp2.uk/plu-5f8ed168f72fcd0007e56269.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV CIN\u00c9 ROMANCE", url:"https://jmp2.uk/plu-60812fc8539963000707d1e1.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV CIN\u00c9 THRILLERS", url:"https://jmp2.uk/plu-60c3472a51a2050008dad272.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV CIN\u00c9 SCI-FI", url:"https://jmp2.uk/plu-60c34592c911890007f29a73.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV CIN\u00c9 HORREUR", url:"https://jmp2.uk/plu-66e1978babec540008ce41ac.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV CIN\u00c9 666", url:"https://jmp2.uk/plu-6823648580b2665220d9e69a.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV CIN\u00c9 CATASTROPHE", url:"https://jmp2.uk/plu-65a69ef53af63d000825e0ee.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV CIN\u00c9 WESTERN", url:"https://jmp2.uk/plu-65cca3e2ec452d0008af3a65.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV CIN\u00c9 D'ASIE", url:"https://jmp2.uk/plu-62f3e2d000418d00070f7dbc.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV CIN\u00c9+", url:"https://jmp2.uk/stvp-FRAJ3800002W5?.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV FRENCH COLLECTION", url:"https://jmp2.uk/plu-62f3e0522443200008c567d7.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"PLUTO TV COM\u00c9DIES CULTES", url:"https://jmp2.uk/plu-67b4b2d976a934282e92d71c.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"ALLOCIN\u00c9", url:"https://jmp2.uk/plu-6618e3037bcd8600089b62a8.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"WILD SIDE TV", url:"https://jmp2.uk/plu-60b4d6c806ad2a00073b3108.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"THE ASYLUM", url:"https://jmp2.uk/plu-5f8ece1a89d79800072510e6.m3u8"},
 
   // ── S\u00c9RIES & DIVERTISSEMENT ──
   {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"FRANCE TV S\u00c9RIES", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/francetv/series.m3u8"},
@@ -501,6 +522,27 @@ const channels = [
   {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"FILMRISE HOT ONES FR", url:"https://d39g1vxj2ef6in.cloudfront.net/v1/master/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod-rakuten-stitched/master.m3u8?ads.xumo_channelId=88883082"},
   {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"RAKUTEN S\u00c9RIES CRIME", url:"https://1ffd245e4d30495e9b006502a155479e.mediatailor.eu-west-1.amazonaws.com/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6214/master.m3u8"},
   {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"RAKUTEN VIKI (K-DRAMA)", url:"https://newidco-rakutenviki-2-eu.rakuten.wurl.tv/playlist.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"H\u00c9L\u00c8NE ET LES GAR\u00c7ONS", url:"https://jmp2.uk/plu-604f8de01b479400078fb1e7.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"PLUS BELLE LA VIE", url:"https://jmp2.uk/plu-662a6309307fa30008196b4e.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"UN GARS UNE FILLE", url:"https://jmp2.uk/plu-62f3ece7b09fd6000783bfb9.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"UN SI GRAND SOLEIL", url:"https://jmp2.uk/plu-6683cd0f63a5f20008fb84a3.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"LOUIS LA BROCANTE", url:"https://jmp2.uk/plu-5f8ed6d569d2d4000864a976.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"WALKER TEXAS RANGER", url:"https://jmp2.uk/plu-60afa749ac7f3200078adb40.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"MACGYVER", url:"https://jmp2.uk/plu-6245ccd0c6cdb800074632e4.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"STAR TREK", url:"https://jmp2.uk/plu-67b4b3c51a5ca760802cc1c7.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"JAG", url:"https://jmp2.uk/plu-65ccd26060eb870008db95fc.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"MISSION IMPOSSIBLE", url:"https://jmp2.uk/plu-6671b21ffc3a46000857fe75.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"COEUR OC\u00c9AN", url:"https://jmp2.uk/plu-62f3dd1c2f29ce0007e18596.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"DIANE FEMME FLIC", url:"https://jmp2.uk/plu-6671b26836a2f90008d9333c.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"S\u00c9RIES FANTASTIQUES (Pluto)", url:"https://jmp2.uk/plu-625ec7a1c853fd00073b38fd.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"PACIFIC BLUE", url:"https://jmp2.uk/plu-68d279fc840d8021ee1f1e50.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"BLUE BLOODS", url:"https://jmp2.uk/plu-66f55a9a747bfa0008521859.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"FLASHPOINT", url:"https://jmp2.uk/plu-66d71ff86b63480008cf15c5.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"PLUTO TV COM\u00c9DIE", url:"https://jmp2.uk/plu-5f8eb91bb9b9e7000817e67f.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"G\u00c9N\u00c9RATION SITCOMS", url:"https://jmp2.uk/plu-60afb203ec391c00070ea1bf.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"PLUTO TV 90'S CLASSICS", url:"https://jmp2.uk/plu-66b4990746762a00084c2f78.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"PLUTO TV CLASSIC TV FR", url:"https://jmp2.uk/plu-5e46ae801f347500099d461a.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"TOUT LE MONDE D\u00c9TESTE CHRIS", url:"https://jmp2.uk/plu-67b4b4a21a5ca760802d25fd.m3u8"},
 
   // ── DIVERTISSEMENT & JEUX ──
   {cat:"Divertissement & Jeux", icon:"\uD83C\uDFB2", name:"MOTUS LA CHA\u00ceNE", url:"https://fastmedia-motuslachaine-rakuten.amagi.tv/hls/amagi_hls_data_rakutenAA-fastmedia-motuslachaine-rakuten/CDN/playlist.m3u8"},
@@ -508,14 +550,36 @@ const channels = [
   {cat:"Divertissement & Jeux", icon:"\uD83C\uDFB2", name:"LES Z'AMOURS", url:"https://amg02393-awpg-amg02393c3-rakuten-uk-2462.playouts.now.amagi.tv/playlist/amg02393-awpg-leszamours-rakutenuk/playlist.m3u8"},
   {cat:"Divertissement & Jeux", icon:"\uD83C\uDFB2", name:"Y A QUE LA V\u00c9RIT\u00c9 QUI COMPTE", url:"https://fastmedia-yaquelaverite-rakuten.amagi.tv/hls/amagi_hls_data_rakutenAA-fastmedia-yaquelaverite-rakuten/CDN/playlist.m3u8"},
   {cat:"Divertissement & Jeux", icon:"\uD83C\uDFB2", name:"LE MEILLEUR DES JEUX TV", url:"https://amg02393-awpg-amg02393c9-rakuten-fr-7687.playouts.now.amagi.tv/playlist/amg02393-awpg-lemeilleurdesjeuxtv-rakutenfr/playlist.m3u8"},
+  {cat:"Divertissement & Jeux", icon:"\uD83C\uDFB2", name:"JUSTE POUR RIRE GAGS", url:"https://jmp2.uk/plu-60afa1508284e60007163c08.m3u8"},
+  {cat:"Divertissement & Jeux", icon:"\uD83C\uDFB2", name:"RIDICULOUSNESS", url:"https://jmp2.uk/plu-5f8eb8a8b2619a000710605c.m3u8"},
+  {cat:"Divertissement & Jeux", icon:"\uD83C\uDFB2", name:"FAILARMY", url:"https://jmp2.uk/plu-5f8ecd9169d2d4000864a974.m3u8"},
+  {cat:"Divertissement & Jeux", icon:"\uD83C\uDFB2", name:"PLUTO TV CUISINE", url:"https://jmp2.uk/plu-5f8ed48146ba9e00078424b6.m3u8"},
+  {cat:"Divertissement & Jeux", icon:"\uD83C\uDFB2", name:"INSTANT SAGA", url:"https://jmp2.uk/plu-60549e98061b5f000776866a.m3u8"},
 
   // ── REALITY TV ──
   {cat:"Reality TV", icon:"\uD83C\uDFA5", name:"LES ANGES", url:"https://amg02393-awpg-amg02393c5-rakuten-uk-2463.playouts.now.amagi.tv/playlist/amg02393-awpg-lesanges-rakutenuk/playlist.m3u8"},
   {cat:"Reality TV", icon:"\uD83C\uDFA5", name:"LE MEILLEUR DE LA TV R\u00c9ALIT\u00c9", url:"https://amg02393-awpg-amg02393c4-rakuten-uk-3886.playouts.now.amagi.tv/playlist/amg02393-awpg-lemeilleurdelatvrealite-rakutenuk/playlist.m3u8"},
+  {cat:"Reality TV", icon:"\uD83C\uDFA5", name:"LES REINES DU SHOPPING", url:"https://jmp2.uk/plu-66f55c55940963000810bb14.m3u8"},
+  {cat:"Reality TV", icon:"\uD83C\uDFA5", name:"LES MARSEILLAIS", url:"https://jmp2.uk/plu-66f55d565e4a6e0008c2b9d2.m3u8"},
+  {cat:"Reality TV", icon:"\uD83C\uDFA5", name:"ZONE INTERDITE", url:"https://jmp2.uk/plu-66f55cf2483d460008f68746.m3u8"},
+  {cat:"Reality TV", icon:"\uD83C\uDFA5", name:"ADJUG\u00c9 VENDU!", url:"https://jmp2.uk/plu-64bab8ba5dc1660008969b5a.m3u8"},
+  {cat:"Reality TV", icon:"\uD83C\uDFA5", name:"TOUTE UNE HISTOIRE", url:"https://jmp2.uk/plu-62f3e6aebcdda4000754fa47.m3u8"},
+  {cat:"Reality TV", icon:"\uD83C\uDFA5", name:"INCR. TRANSFORMATIONS", url:"https://jmp2.uk/plu-66f55d205e4a6e0008c2b92b.m3u8"},
+  {cat:"Reality TV", icon:"\uD83C\uDFA5", name:"PLUTO TV REALITY", url:"https://jmp2.uk/plu-6092544e7639460007d4835e.m3u8"},
+  {cat:"Reality TV", icon:"\uD83C\uDFA5", name:"PLUTO TV DATING", url:"https://jmp2.uk/plu-682318568e6c0f2f6c6e0038.m3u8"},
+  {cat:"Reality TV", icon:"\uD83C\uDFA5", name:"TEEN MOM", url:"https://jmp2.uk/plu-62f3f05505e621000783df2f.m3u8"},
 
   // ── CRIME & ENQU\u00caTES ──
   {cat:"Crime & Enqu\u00eates", icon:"\uD83D\uDD0D", name:"HOMICIDE", url:"https://fastmedia-homicide-rakuten.amagi.tv/hls/amagi_hls_data_rakutenAA-fastmedia-homicide-rakuten/CDN/master.m3u8"},
   {cat:"Crime & Enqu\u00eates", icon:"\uD83D\uDD0D", name:"INTO CRIME", url:"https://amg00711-zylo-amg00711c10-rakuten-fr-6731.playouts.now.amagi.tv/playlist/amg00711-zylofast-intocrime-rakutenfr/playlist.m3u8"},
+  {cat:"Crime & Enqu\u00eates", icon:"\uD83D\uDD0D", name:"FAITES ENTRER L'ACCUS\u00c9", url:"https://jmp2.uk/plu-662a622b5e2370000800f392.m3u8"},
+  {cat:"Crime & Enqu\u00eates", icon:"\uD83D\uDD0D", name:"ENQU\u00caTES CRIMINELLES", url:"https://jmp2.uk/plu-66f55d0b5e4a6e0008c2b920.m3u8"},
+  {cat:"Crime & Enqu\u00eates", icon:"\uD83D\uDD0D", name:"LES NOUVEAUX D\u00c9TECTIVES", url:"https://jmp2.uk/plu-5f8edb6df1ebb800072edf10.m3u8"},
+  {cat:"Crime & Enqu\u00eates", icon:"\uD83D\uDD0D", name:"DOSSIERS FBI", url:"https://jmp2.uk/plu-5f8edad922b10b000753bc37.m3u8"},
+  {cat:"Crime & Enqu\u00eates", icon:"\uD83D\uDD0D", name:"PLUTO TV BRIGADE CRIMINELLE", url:"https://jmp2.uk/plu-684bf01df7d8b74b625b7dd1.m3u8"},
+  {cat:"Crime & Enqu\u00eates", icon:"\uD83D\uDD0D", name:"PLUTO TV INVESTIGATION", url:"https://jmp2.uk/plu-6683cd2fca74680008772545.m3u8"},
+  {cat:"Crime & Enqu\u00eates", icon:"\uD83D\uDD0D", name:"PLUTO TV PARANORMAL", url:"https://jmp2.uk/plu-5f8ed9461b35690007a0bc3a.m3u8"},
+  {cat:"Crime & Enqu\u00eates", icon:"\uD83D\uDD0D", name:"MOST HAUNTED", url:"https://jmp2.uk/plu-66d722d31878f200081c2c64.m3u8"},
 
   // ── JEUNESSE ──
   {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"GULLI", url:"https://lbcdn.6cloud.fr/resource/m6web/l/gulli_hls_sd_short_q2hyb21h.m3u8?groups[]=m6web-live-gulli_ext"},
@@ -529,6 +593,25 @@ const channels = [
   {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"YU-GI-OH! FR", url:"https://amg01796-amg01796c16-rakuten-fr-7493.playouts.now.amagi.tv/playlist/amg01796-fastmediafast-yugioh3fr-rakutenfr/playlist.m3u8"},
   {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"MR. BEAN", url:"https://amg00627-amg00627c31-rakuten-fr-3991.playouts.now.amagi.tv/playlist/amg00627-banijayfast-mrbeanfrcc-rakutenfr/playlist.m3u8"},
   {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"BABY SHARK TV", url:"https://c0c65b821b3542c3a4dca92702f59944.mediatailor.us-east-1.amazonaws.com/v1/master/04fd913bb278d8775298c26fdca9d9841f37601f/RakutenTV-eu_BabySharkTV/playlist.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"BOB L'\u00c9PONGE", url:"https://jmp2.uk/plu-5ffc8c345822750007e167de.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"TORTUES NINJA TV", url:"https://jmp2.uk/plu-5f8ecc1b37867f00071469e9.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"ONE PIECE", url:"https://jmp2.uk/plu-6380c94947c72b0007ee9a13.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"OLIVE ET TOM", url:"https://jmp2.uk/plu-662a63275a402e00086bc8a5.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"DETECTIVE CONAN", url:"https://jmp2.uk/plu-62f3e8ad2a8e8000077b013d.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"LES SCHTROUMPFS", url:"https://jmp2.uk/plu-68b16d2282862c1f067dc763.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"CHARLOTTE AUX FRAISES", url:"https://jmp2.uk/plu-60dc6937b450ad0007377e48.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"ICARLY TV", url:"https://jmp2.uk/plu-5f8ecc7aa44d9c00081fca29.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"AVATAR", url:"https://jmp2.uk/plu-60b4c17a81e29300071d3a39.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"DIGIMON ADVENTURE", url:"https://jmp2.uk/plu-617bae1d69bca3000729561e.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"INAZUMA ELEVEN", url:"https://jmp2.uk/plu-611e75226b7f420007c3f319.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"DORAEMON", url:"https://jmp2.uk/plu-68b17414c23bb80b3c1d5bb5.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"BARBIE & FRIENDS", url:"https://jmp2.uk/plu-686e7499e0ecf0e0cc25dbe3.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"C'EST PAS SORCIER", url:"https://jmp2.uk/plu-63b579961bdba100071214cb.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"PLUTO TV TOONS", url:"https://jmp2.uk/plu-5f8eba14a4ffb8000764e950.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"PLUTO TV RETRO TOONS", url:"https://jmp2.uk/plu-611e6a9b4bb5790007a6f0f8.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"PLUTO TV JUNIOR", url:"https://jmp2.uk/plu-5f8ecb336537e8000764a17f.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"PLUTO TV TEEN", url:"https://jmp2.uk/plu-5f8eb99ff17815000784a3b0.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"DARIA", url:"https://jmp2.uk/plu-6683b680efa2a10008e8a393.m3u8"},
 
   // ── D\u00c9COUVERTE ──
   {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"PLAN\u00c8TE+", url:"https://viamotionhsi.netplus.ch/live/eds/planeteplus/browser-HLS8/planeteplus.m3u8"},
@@ -543,6 +626,14 @@ const channels = [
   {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"INA ARDIVISION", url:"https://fast-rakuten.okast.tv/fa2e8c4385712f9a3b579747e448699c/channels/34d82f76-b51f-4bf5-9b35-769fb5904e79/a4226699-b685-4f5d-9cb6-2a6cac14c377/media_.m3u8"},
   {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"NATURE TIME FRANCE", url:"https://bamusa-naturetime-emea-fra-rakuten.amagi.tv/playlist.m3u8"},
   {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"TRAVELXP FRANCE", url:"https://travelxp-travelxp-4-fr.rakuten.wurl.tv/playlist.m3u8"},
+  {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"PLUTO TV ANIMAUX", url:"https://jmp2.uk/plu-60925a44f0350600075a1fdc.m3u8"},
+  {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"PLUTO TV HISTOIRE", url:"https://jmp2.uk/plu-611e771e2f5f180007002224.m3u8"},
+  {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"\u00c9CHAPP\u00c9ES BELLES & CO", url:"https://jmp2.uk/plu-63b578b524f0cf00072f2a52.m3u8"},
+  {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"MAYDAY: CATASTROPHE A\u00c9RIENNE", url:"https://jmp2.uk/plu-686e74c777ed3360cb6908bf.m3u8"},
+  {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"P\u00caCHE \u00c0 HAUT RISQUE", url:"https://jmp2.uk/plu-678f894ef5c74bff95c20a7f.m3u8"},
+  {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"PLUTO TV AVENTURE", url:"https://jmp2.uk/plu-611e7811eb9daf000764cbfd.m3u8"},
+  {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"VOYAGES & SAVEURS", url:"https://jmp2.uk/plu-680291e38e1ff89c2427aefd.m3u8"},
+  {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"LA MAISON FRANCE 5", url:"https://jmp2.uk/plu-685a999bd33909bdd7d2fb1e.m3u8"},
 
   // ── STYLE DE VIE ──
   {cat:"Style de vie", icon:"\uD83C\uDFE0", name:"TECH&CO", url:"https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_TECHANDCO/index.m3u8?start=LIVE&end=END"},
