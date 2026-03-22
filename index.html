@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230f172a' width='100' height='100' rx='20'/><text y='68' x='50' text-anchor='middle' font-size='55'>📺</text></svg>">
+<title>IPTV France</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59,130,246,0.3);
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --radius: 14px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* ── PLAYER ── */
+  #player-section {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #000;
+    width: 100%;
+    aspect-ratio: 16/9;
+    max-height: 35dvh;
+    display: none;
+    flex-direction: column;
+  }
+  #player-section.active { display: flex; }
+
+  #player-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: rgba(15,23,42,0.95);
+    backdrop-filter: blur(10px);
+  }
+  #now-playing {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    margin-right: 10px;
+  }
+  #btn-close-player {
+    background: var(--surface2);
+    border: none;
+    color: var(--text);
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  video {
+    width: 100%;
+    flex: 1;
+    background: #000;
+    object-fit: contain;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    padding: 20px 16px 12px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header p {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+
+  /* ── SEARCH ── */
+  .search-wrap {
+    padding: 0 16px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
+  }
+  #player-section.active ~ .search-wrap { position: relative; }
+
+  #search {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    border-radius: 12px;
+    border: 1px solid var(--surface2);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  #search:focus { border-color: var(--accent); }
+  .search-wrap::before {
+    content: "\1F50D";
+    position: absolute;
+    left: 30px;
+    top: 12px;
+    font-size: 16px;
+    z-index: 1;
+  }
+
+  /* ── CATEGORIES ── */
+  .categories {
+    padding: 0 16px;
+  }
+
+  .cat-btn {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    background: var(--surface);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: left;
+  }
+  .cat-btn:active { transform: scale(0.98); }
+  .cat-btn.active {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.1));
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+  .cat-icon {
+    font-size: 22px;
+    margin-right: 12px;
+    width: 30px;
+    text-align: center;
+  }
+  .cat-count {
+    margin-left: auto;
+    background: var(--surface2);
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .cat-btn.active .cat-count {
+    background: var(--accent);
+    color: #fff;
+  }
+  .cat-arrow {
+    margin-left: 8px;
+    font-size: 12px;
+    color: var(--text2);
+    transition: transform .3s;
+  }
+  .cat-btn.active .cat-arrow { transform: rotate(90deg); }
+
+  /* ── CHANNEL LIST ── */
+  .channel-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .4s ease;
+    margin-bottom: 4px;
+  }
+  .channel-list.open {
+    max-height: 5000px;
+  }
+
+  .channel {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px 12px 58px;
+    cursor: pointer;
+    border-radius: 10px;
+    margin: 2px 16px;
+    transition: background .15s;
+  }
+  .channel:active { background: var(--surface2); }
+  .channel.playing {
+    background: rgba(59,130,246,0.15);
+  }
+
+  .ch-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 12px;
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+  .channel.playing .ch-dot {
+    opacity: 1;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+    50% { box-shadow: 0 0 0 6px transparent; }
+  }
+
+  .ch-name {
+    font-size: 14px;
+    font-weight: 500;
+    flex: 1;
+  }
+  .ch-play {
+    font-size: 18px;
+    opacity: 0.4;
+  }
+  .channel.playing .ch-play { opacity: 1; }
+
+  /* ── LOADING ── */
+  #loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    flex-direction: column;
+    gap: 12px;
+  }
+  #loading-overlay.show { display: flex; }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--surface2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── ERROR TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: calc(20px + var(--safe-bottom));
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #ef4444;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 300;
+    transition: transform .3s;
+    white-space: nowrap;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    padding: 30px 16px calc(20px + var(--safe-bottom));
+    color: var(--text2);
+    font-size: 12px;
+  }
+
+  /* ── BACK BUTTON (channel view) ── */
+  #back-btn {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    margin: 0 16px 8px;
+    background: var(--surface);
+    border: none;
+    border-radius: var(--radius);
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #back-btn:active { background: var(--surface2); }
+
+  /* ── NO RESULTS ── */
+  .no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text2);
+    font-size: 15px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- Player -->
+<div id="player-section">
+  <div id="player-bar">
+    <span id="now-playing">---</span>
+    <button id="btn-close-player" onclick="closePlayer()">&#10005;</button>
+  </div>
+  <video id="video" controls playsinline autoplay></video>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <h1>IPTV France</h1>
+  <p id="total-count"></p>
+</div>
+
+<!-- Search -->
+<div class="search-wrap">
+  <input type="search" id="search" placeholder="Rechercher une cha\u00eene..." autocomplete="off">
+</div>
+
+<!-- Back button -->
+<button id="back-btn" onclick="showCategories()">&#8592; Retour aux cat\u00e9gories</button>
+
+<!-- Categories & Channels -->
+<div class="categories" id="categories"></div>
+
+<!-- No results -->
+<div class="no-results" id="no-results">Aucune cha\u00eene trouv\u00e9e</div>
+
+<!-- Loading -->
+<div id="loading-overlay"><div class="spinner"></div><span style="color:var(--text2);font-size:13px">Chargement...</span></div>
+
+<!-- Toast -->
+<div id="toast">Flux indisponible</div>
+
+<!-- Footer -->
+<div class="footer">Sources : iptv-org &bull; Free-TV &bull; schumijo &bull; iptv-ch</div>
+
+<script>
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+const channels = [
+  // ── TNT ──
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"TF1", url:"https://viamotionhsi.netplus.ch/live/eds/tf1hd/browser-HLS8/tf1hd.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"FRANCE 2", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/francetv/france2.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"FRANCE 3", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/francetv/france3.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"FRANCE 4", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/francetv/france4.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"FRANCE 5", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/francetv/france5.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"M6", url:"https://viamotionhsi.netplus.ch/live/eds/m6hd/browser-HLS8/m6hd.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"ARTE", url:"https://artesimulcast.akamaized.net/hls/live/2031003/artelive_fr/index.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"W9", url:"https://viamotionhsi.netplus.ch/live/eds/w9/browser-HLS8/w9.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"TMC", url:"https://viamotionhsi.netplus.ch/live/eds/tmc/browser-HLS8/tmc.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"TFX", url:"https://viamotionhsi.netplus.ch/live/eds/nt1/browser-HLS8/nt1.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"NRJ 12", url:"https://nrj12.nrjaudio.fm/hls/live/2038374/nrj_12/master.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"LCP", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/francetv/lcpps.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"FRANCE INFO", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/francetv/franceinfo.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"BFM TV", url:"https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_TV/index.m3u8?start=LIVE&end=END"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"CNEWS", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/canalplus/cnews.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"LCI", url:"https://viamotionhsi.netplus.ch/live/eds/lci/browser-HLS8/lci.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"CSTAR", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/canalplus/cstar.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"GULLI", url:"https://lbcdn.6cloud.fr/resource/m6web/l/gulli_hls_sd_short_q2hyb21h.m3u8?groups[]=m6web-live-gulli_ext"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"TF1 S\u00c9RIES FILMS", url:"https://viamotionhsi.netplus.ch/live/eds/hd1/browser-HLS8/hd1.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"L'\u00c9QUIPE TV", url:"https://dq37unyetkpcz.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-m04j89j7k5gtp/LEquipe_FR.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"6TER", url:"https://viamotionhsi.netplus.ch/live/eds/6ter/browser-HLS8/6ter.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"RMC STORY", url:"https://d15aro46bnpfm8.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-fqkqiax1078up/RMC_Story_FR.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"RMC D\u00c9COUVERTE", url:"https://d16zzycxcd0m0r.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-hixvx5kymecr9/RMC_Decouverte_FR.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"RMC LIFE", url:"https://d3dcdjv6dx07iz.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-eaaww2dyp3iih/RMC_Life_FR.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"CANAL+ EN CLAIR", url:"https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/canalplus/canalplusclair-hd.m3u8"},
+  {cat:"TNT", icon:"\uD83D\uDCFA", name:"T18", url:"https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/t18/t18-dm.m3u8"},
+
+  // ── INFORMATIONS ──
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"FRANCE 24 FR", url:"https://live.france24.com/hls/live/2037179/F24_FR_HI_HLS/master_5000.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"FRANCE 24 EN", url:"https://live.france24.com/hls/live/2037218/F24_EN_HI_HLS/master_5000.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"FRANCE 24 ES", url:"https://live.france24.com/hls/live/2037220/F24_ES_HI_HLS/master_5000.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"FRANCE 24 AR", url:"https://live.france24.com/hls/live/2037222/F24_AR_HI_HLS/master_5000.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"FRANCEINFO", url:"https://raw.githubusercontent.com/Sibprod/streams/main/ressources/dm/py/hls/franceinfotv.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"EURONEWS FR", url:"https://euronews-live-fre-fr.fast.rakuten.tv/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6564/bitok/e/26032/euronews-fr.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"AFRICANEWS FR", url:"https://cdn-euronews.akamaized.net/live/eds/africanews-fr/25050/index.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"BFM TV 2", url:"https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM2/index.m3u8?start=LIVE&end=END"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"BFM BUSINESS", url:"https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_BUSINESS/index.m3u8?start=LIVE&end=END"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"BFM GRANDS REPORTAGES", url:"https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_GRANDSREPORTAGES/index.m3u8?start=LIVE&end=END"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"CNEWS PRIME", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/canalplus/cnews_prime.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"B SMART", url:"https://raw.githubusercontent.com/Sibprod/streams/main/ressources/dm/py/hls/bsmart.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"LE M\u00c9DIA TV", url:"https://raw.githubusercontent.com/Sibprod/streams/main/ressources/dm/py/hls/lemedia.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"RMC TALK INFO", url:"https://d75bm5ggq4k1o.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-gui89fv6hprsj/RMC_TALK_INFO_FR.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"CGTN FRAN\u00c7AIS", url:"https://news.cgtn.com/resource/live/french/cgtn-f.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"20 MINUTES TV", url:"https://live-20minutestv.digiteka.com/1961167769/index.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"LE FIGARO IDF", url:"https://static.lefigaro.fr/secom/tnt.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"AFRICA 24", url:"https://africa24.vedge.infomaniak.com/livecast/ik:africa24/manifest.m3u8"},
+  {cat:"Informations", icon:"\uD83D\uDCF0", name:"FRANCOPHONIE24", url:"https://5421175365ea3.streamlock.net/live/smil:switch.smil/playlist.m3u8"},
+
+  // ── SPORT ──
+  {cat:"Sport", icon:"\u26BD", name:"L'\u00c9QUIPE TV", url:"https://dq37unyetkpcz.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-m04j89j7k5gtp/LEquipe_FR.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"EUROSPORT 1", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/lequipe/eurosport1.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"EUROSPORT 2", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/lequipe/eurosport2.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"EQUIDIA", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/equidia/equidia-live2.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"EQUIDIA RACING MAG", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/equidia/equidia-racingmag.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"AFTER FOOT TV", url:"https://d278gam2ft6q08.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-0ic4hqa502el6/AfterfootTV_FR.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"FRANCE TV SPORT", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/francetv/sport.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"SPORT EN FRANCE", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/dailymotion/sportenfrance.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"TENNIS CHANNEL", url:"https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/lequipe/tennis-channel-dm.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"TRACE SPORTS STARS", url:"https://lightning-tracesport-samsungau.amagi.tv/playlist.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"MOTORVISION TV", url:"https://d39g1vxj2ef6in.cloudfront.net/v1/master/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod-rakuten-stitched/master.m3u8?ads.xumo_channelId=88883047"},
+  {cat:"Sport", icon:"\u26BD", name:"JOURNAL DU GOLF", url:"https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/lequipe/my-new-video-title-dm.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"AFRICA 24 SPORT", url:"https://africa24.vedge.infomaniak.com/livecast/ik:africa24sport/manifest.m3u8"},
+  {cat:"Sport", icon:"\u26BD", name:"INFOSPORT+", url:"http://212.102.60.80/Infosport/index.m3u8"},
+
+  // ── SPORT MULTIPLEX ──
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"L'\u00c9QUIPE LIVE 1", url:"https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/lequipe/l-equipe-live-1-dm.m3u8"},
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"L'\u00c9QUIPE LIVE 2", url:"https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/lequipe/l-equipe-live-2-dm.m3u8"},
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"L'\u00c9QUIPE LIVE 3", url:"https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/lequipe/l-equipe-live-3-dm.m3u8"},
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"L'\u00c9QUIPE LIVE 4", url:"https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/lequipe/l-equipe-live-4-dm.m3u8"},
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"L'\u00c9QUIPE LIVE 5", url:"https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/lequipe/l-equipe-live-5-dm.m3u8"},
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"L'\u00c9QUIPE LIVE 6", url:"https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/lequipe/l-equipe-live-6-dm.m3u8"},
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"L'\u00c9QUIPE LIVE 7", url:"https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/lequipe/l-equipe-live-7-dm.m3u8"},
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"L'\u00c9QUIPE LIVE 8", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/lequipe/lequipelive8.m3u8"},
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"EUROSPORT360 1", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/lequipe/eurosport360-1.m3u8"},
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"EUROSPORT360 2", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/lequipe/eurosport360-2.m3u8"},
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"EUROSPORT360 3", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/lequipe/eurosport360-3.m3u8"},
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"EUROSPORT360 4", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/lequipe/eurosport360-4.m3u8"},
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"EUROSPORT360 5", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/lequipe/eurosport360-5.m3u8"},
+  {cat:"Sport Multiplex", icon:"\uD83C\uDFC6", name:"EUROSPORT360 6", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/lequipe/eurosport360-6.m3u8"},
+
+  // ── CIN\u00c9MA ──
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"TCM CINEMA", url:"https://viamotionhsi.netplus.ch/live/eds/tcm/browser-HLS8/tcm.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"SONY ONE HITS ACTION", url:"https://5098a8b860504a3690fd2e7c0a18d68f.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-817-FR-SONYONEHITSACTION-LG_FR/playlist.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"SONY ONE HITS COM\u00c9DIE", url:"https://7aa9671895264ec9a384dfed1b992171.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-818-FR-SONYONEHITSCOMDIE-LG_FR/playlist.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"SONY ONE FAVORIS", url:"https://49d735318d6b4c30a24a7997ea594e1b.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-820-FR-SONYONEFAVORIS-LG_FR/playlist.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"SONY ONE BLACKLIST", url:"https://06cb85ad6ccb4a6b97f561e62d16ad3f.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-822-FR-SONYONETHEBLACKLIST-LG_FR/playlist.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"SONY ONE S\u00c9RIES COM\u00c9DIE", url:"https://4f2a3e1ff5274297b115cf0f7da1c2cd.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-819-FR-SONYONESRIESCOMDIE-LG_FR/playlist.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"SONY ONE S\u00c9RIES THRILLER", url:"https://483a1e90c18641c9a6d27becd41ad892.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-821-FR-SONYONESRIESTHRILLER-LG_FR/playlist.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"CIN\u00c9 NANAR", url:"https://zylo-cinenanar-rakuten.amagi.tv/playlist.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"CIN\u00c9 WESTERN", url:"https://amg00711-zylo-amg00711c8-rakuten-uk-2686.playouts.now.amagi.tv/playlist/amg00711-zylofast-cinewestern-rakutenuk/playlist.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"EMOTION'L", url:"https://amg00711-zylo-france-zylo-emotional-rakuten-frukp.amagi.tv/hls/amagi_hls_data_rakutenAA-zylo-emotional-rakuten/CDN/master.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"FR\u00c9QUENCE NOVELAS", url:"https://amg00711-zylo-amg00711c4-rakuten-us-769.playouts.now.amagi.tv/playlist/amg00711-zylofast-frequencenovelas-rakutenus/playlist.m3u8"},
+  {cat:"Cin\u00e9ma", icon:"\uD83C\uDFAC", name:"SCREAM'IN", url:"https://zylo-screamin-rakuten.amagi.tv/hls/amagi_hls_data_rakutenAA-zylo-screamin-rakuten/CDN/master.m3u8"},
+
+  // ── S\u00c9RIES & DIVERTISSEMENT ──
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"FRANCE TV S\u00c9RIES", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/francetv/series.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"LE MEILLEUR D'ARTHUR", url:"https://amg02393-awpg-amg02393c2-rakuten-uk-2464.playouts.now.amagi.tv/playlist/amg02393-awpg-lemeilleurdarthur-rakutenuk/playlist.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"ENQU\u00caTES DE CHOC", url:"https://fastmedia-enquetesdechoc-rakuten.amagi.tv/hls/amagi_hls_data_rakutenAA-fastmedia-enquetesdechoc-rakuten/CDN/playlist.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"GONG", url:"https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01596-gongnetworks-gong-samsungfr/playlist.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"NOVELA CHANNEL", url:"https://video1.getstreamhosting.com:1936/8494/8494/playlist.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"POPCORN", url:"https://dyc8bdiow0oz1.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-qique82ecf5q8/pcorn.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"RTL9", url:"https://viamotionhsi.netplus.ch/live/eds/rtl9/browser-HLS8/rtl9.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"AB1", url:"https://viamotionhsi.netplus.ch/live/eds/ab1/browser-HLS8/ab1.m3u8"},
+  {cat:"S\u00e9ries & Divertissement", icon:"\uD83C\uDFAD", name:"MGG E-SPORT", url:"https://d1mdvi698umja9.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-kuib43fy5umqi-ssai-prd/mgg.m3u8"},
+
+  // ── JEUNESSE ──
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"GULLI", url:"https://lbcdn.6cloud.fr/resource/m6web/l/gulli_hls_sd_short_q2hyb21h.m3u8?groups[]=m6web-live-gulli_ext"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"CARTOON NETWORK", url:"https://viamotionhsi.netplus.ch/live/eds/cartoonnetwork/browser-HLS8/cartoonnetwork.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"CANAL J", url:"https://viamotionhsi.netplus.ch/live/eds/canalj/browser-HLS8/canalj.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"DISNEY JR.", url:"http://151.80.18.177:86/Disney_Junior_HD/index.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"NICKELODEON", url:"http://151.80.18.177:86/Nickelodeon_FR/index.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"NICKELODEON JR", url:"http://151.80.18.177:86/Nickelodeon_Junior/index.m3u8"},
+  {cat:"Jeunesse", icon:"\uD83D\uDC76", name:"CAILLOU", url:"https://do7nccdsswstc.cloudfront.net/v1/manifest/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-1aso0bc668saa/a5233c83-f772-4a81-959a-45ec7877ef61/5.m3u8"},
+
+  // ── D\u00c9COUVERTE ──
+  {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"PLAN\u00c8TE+", url:"https://viamotionhsi.netplus.ch/live/eds/planeteplus/browser-HLS8/planeteplus.m3u8"},
+  {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"L'ESPRIT SORCIER TV", url:"https://edge17.vedge.infomaniak.com/livecast/ik:bazikafrica/manifest.m3u8"},
+  {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"FRANCE TV DOCS", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/francetv/docs.m3u8"},
+  {cat:"D\u00e9couverte", icon:"\uD83D\uDD2C", name:"INA", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/francetv/ina.m3u8"},
+
+  // ── STYLE DE VIE ──
+  {cat:"Style de vie", icon:"\uD83C\uDFE0", name:"TECH&CO", url:"https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_TECHANDCO/index.m3u8?start=LIVE&end=END"},
+  {cat:"Style de vie", icon:"\uD83C\uDFE0", name:"RMC M\u00c9CANIC", url:"https://d31lyfwi8gzfyr.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-ebepfdmg74kzh/RMC_MECANIC_FR.m3u8"},
+  {cat:"Style de vie", icon:"\uD83C\uDFE0", name:"MEN'S UP TV", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/dailymotion/mensuptv.m3u8"},
+  {cat:"Style de vie", icon:"\uD83C\uDFE0", name:"FASHION TV PARIS", url:"https://edge-fast3.evrideo.tv/bfdbb576-83f7-11f0-9f89-0200170e3e04_1000028043_HLS/manifest.m3u8"},
+  {cat:"Style de vie", icon:"\uD83C\uDFE0", name:"MY ZEN TV", url:"https://cdn-ue1-prod.tsv2.amagi.tv/linear/amg01255-secomcofites-my-myzen-en-plex/playlist.m3u8"},
+  {cat:"Style de vie", icon:"\uD83C\uDFE0", name:"SQOOL TV", url:"https://new.cache-stream.workers.dev/stream/UCaEqMbRYYOmI3WrALMhxuIg/live.m3u8"},
+  {cat:"Style de vie", icon:"\uD83C\uDFE0", name:"MAISON & TRAVAUX", url:"https://raw.githubusercontent.com/Sibprod/streams/main/ressources/dm/py/hls/maisonettravaux.m3u8"},
+
+  // ── MUSIQUE ──
+  {cat:"Musique", icon:"\uD83C\uDFB5", name:"M\u00c9LODIE", url:"https://live.creacast.com/telemelody/smil:telemelody-yjvCxE7x.smil/playlist.m3u8"},
+  {cat:"Musique", icon:"\uD83C\uDFB5", name:"CLUBBING TV", url:"https://d1j2csarxnwazk.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-uze1m6xh4fiyr-ssai-prd/master.m3u8"},
+  {cat:"Musique", icon:"\uD83C\uDFB5", name:"G\u00c9N\u00c9RATIONS TV", url:"https://edge11.vedge.infomaniak.com/livecast/ik:generation-tv/manifest.m3u8"},
+  {cat:"Musique", icon:"\uD83C\uDFB5", name:"TRACE URBAN", url:"https://lightning-traceurban-samsungau.amagi.tv/playlist.m3u8"},
+  {cat:"Musique", icon:"\uD83C\uDFB5", name:"TRACE LATINA", url:"https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01131-tracetv-tracelatinaes-samsungspain/playlist.m3u8"},
+  {cat:"Musique", icon:"\uD83C\uDFB5", name:"BBLACK! AFRICA", url:"https://livevideo.vedge.infomaniak.com/livecast/ik:bblackafrica/manifest.m3u8"},
+  {cat:"Musique", icon:"\uD83C\uDFB5", name:"BBLACK! CLASSIK", url:"https://livevideo.vedge.infomaniak.com/livecast/ik:bblackclassik/manifest.m3u8"},
+
+  // ── RADIO ──
+  {cat:"Radio", icon:"\uD83D\uDCFB", name:"FRANCE INTER", url:"https://raw.githubusercontent.com/Sibprod/streams/main/ressources/dm/py/hls/franceinter.m3u8"},
+  {cat:"Radio", icon:"\uD83D\uDCFB", name:"FUN RADIO", url:"https://raw.githubusercontent.com/Sibprod/streams/main/ressources/dm/py/hls/funradiofr.m3u8"},
+  {cat:"Radio", icon:"\uD83D\uDCFB", name:"RTL2", url:"https://raw.githubusercontent.com/Sibprod/streams/main/ressources/dm/py/hls/rtl2.m3u8"},
+  {cat:"Radio", icon:"\uD83D\uDCFB", name:"SUD RADIO", url:"https://raw.githubusercontent.com/Sibprod/streams/main/ressources/dm/py/hls/sudradio.m3u8"},
+  {cat:"Radio", icon:"\uD83D\uDCFB", name:"MOUV'", url:"https://raw.githubusercontent.com/Sibprod/streams/main/ressources/dm/py/hls/mouv.m3u8"},
+
+  // ── R\u00c9GIONALE BFM ──
+  {cat:"R\u00e9gionale BFM", icon:"\uD83D\uDDFC", name:"BFM LYON", url:"https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_LYON/index.m3u8?start=LIVE&end=END"},
+  {cat:"R\u00e9gionale BFM", icon:"\uD83D\uDDFC", name:"BFM GRAND LILLE", url:"https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFMGRANDLILLE/index.m3u8?start=LIVE&end=END"},
+  {cat:"R\u00e9gionale BFM", icon:"\uD83D\uDDFC", name:"BFM MARSEILLE", url:"https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_MARSEILLEPROV/index.m3u8?start=LIVE&end=END"},
+  {cat:"R\u00e9gionale BFM", icon:"\uD83D\uDDFC", name:"BFM NICE C\u00d4TE D'AZUR", url:"https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_NICECOTEDAZUR/index.m3u8?start=LIVE&end=END"},
+  {cat:"R\u00e9gionale BFM", icon:"\uD83D\uDDFC", name:"BFM TOULON VAR", url:"https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_TOULONVAR/index.m3u8?start=LIVE&end=END"},
+  {cat:"R\u00e9gionale BFM", icon:"\uD83D\uDDFC", name:"BFM ALSACE", url:"https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_ALSACE/index.m3u8?start=LIVE&end=END"},
+  {cat:"R\u00e9gionale BFM", icon:"\uD83D\uDDFC", name:"BFM NORMANDIE", url:"https://ncdn-live-bfm.pfd.sfr.net/shls/LIVE$BFM_NORMANDIE/index.m3u8?start=LIVE&end=END"},
+
+  // ── LOCALE ──
+  {cat:"Locale", icon:"\uD83C\uDFD8\uFE0F", name:"T\u00c9L\u00c9NANTES", url:"https://raw.githubusercontent.com/schumijo/iptv/main/playlists/dailymotion/telenantes.m3u8"},
+  {cat:"Locale", icon:"\uD83C\uDFD8\uFE0F", name:"W\u00c9O TV", url:"https://lives.digiteka.com/stream/c58028c2-a58b-4526-9ec8-389cad4a71e8/index.m3u8"},
+  {cat:"Locale", icon:"\uD83C\uDFD8\uFE0F", name:"CANAL 32", url:"https://event.vedge.infomaniak.com/livecast/ik:canal32_4/manifest.m3u8"},
+  {cat:"Locale", icon:"\uD83C\uDFD8\uFE0F", name:"VIAMAT\u00c9L\u00c9", url:"https://5dd226f8f01e8.streamlock.net/via-matele-live/matelelive_1080/playlist.m3u8"},
+  {cat:"Locale", icon:"\uD83C\uDFD8\uFE0F", name:"LE FIGARO IDF", url:"https://figarotv-live.freecaster.com/live/freecaster/figarotv.m3u8"},
+  {cat:"Locale", icon:"\uD83C\uDFD8\uFE0F", name:"VOSGES TV", url:"https://vosgestv.live-kd.com/live/vosgestv/vosgestv/playlist.m3u8"},
+  {cat:"Locale", icon:"\uD83C\uDFD8\uFE0F", name:"ALPE D'HUEZ TV", url:"https://edge13.vedge.infomaniak.com/livecast/ik:adhtv/manifest.m3u8"},
+  {cat:"Locale", icon:"\uD83C\uDFD8\uFE0F", name:"ANTENNE R\u00c9UNION", url:"https://live-antenne-reunion.zeop.tv/live/c3eds/antreunihd/hls_fta/antreunihd.m3u8?location=ZEOP01"},
+
+  // ── INTERNATIONAL FR ──
+  {cat:"International FR", icon:"\uD83C\uDF0D", name:"TV5MONDE FBSM", url:"https://ott.tv5monde.com/Content/HLS/Live/channel(fbs)/index.m3u8"},
+  {cat:"International FR", icon:"\uD83C\uDF0D", name:"TV5MONDE INFO", url:"https://ott.tv5monde.com/Content/HLS/Live/channel(info)/index.m3u8"},
+  {cat:"International FR", icon:"\uD83C\uDF0D", name:"EMCI TV", url:"https://raw.githubusercontent.com/Sibprod/streams/main/ressources/dm/py/hls/emciafrique.m3u8"},
+  {cat:"International FR", icon:"\uD83C\uDF0D", name:"FRANCOPHONIE", url:"http://mv2.tvfrancophonie.org/live/Stream1/playlist.m3u8"},
+  {cat:"International FR", icon:"\uD83C\uDF0D", name:"T\u00c9L\u00c9SUD", url:"https://raw.githubusercontent.com/Sibprod/streams/main/ressources/dm/py/hls/telesud.m3u8"},
+  {cat:"International FR", icon:"\uD83C\uDF0D", name:"ADN TV+", url:"https://d3b73b34o7cvkq.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-gz2sgqzp076kf/adn.m3u8"},
+
+  // ── BELGIQUE ──
+  {cat:"Belgique", icon:"\uD83C\uDDE7\uD83C\uDDEA", name:"BEL RTL", url:"https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/rtl/be/belrtl.m3u8"},
+
+  // ── SUISSE ROMANDE ──
+  {cat:"Suisse Romande", icon:"\uD83C\uDDE8\uD83C\uDDED", name:"CANAL 9 (Valais)", url:"https://viamotionhsi.netplus.ch/live/eds/canal9/browser-HLS8/canal9.m3u8"},
+  {cat:"Suisse Romande", icon:"\uD83C\uDDE8\uD83C\uDDED", name:"L\u00c9MAN BLEU", url:"https://viamotionhsi.netplus.ch/live/eds/lemanbleu/browser-HLS8/lemanbleu.m3u8"},
+  {cat:"Suisse Romande", icon:"\uD83C\uDDE8\uD83C\uDDED", name:"BLUE ZOOM FR", url:"https://viamotionhsi.netplus.ch/live/eds/bluezoomfr/browser-HLS8/bluezoomfr.m3u8"},
+  {cat:"Suisse Romande", icon:"\uD83C\uDDE8\uD83C\uDDED", name:"CANAL ALPHA JU", url:"https://viamotionhsi.netplus.ch/live/eds/canalalphaju/browser-HLS8/canalalphaju.m3u8"},
+  {cat:"Suisse Romande", icon:"\uD83C\uDDE8\uD83C\uDDED", name:"CANAL ALPHA NE", url:"https://viamotionhsi.netplus.ch/live/eds/canalalphane/browser-HLS8/canalalphane.m3u8"},
+  {cat:"Suisse Romande", icon:"\uD83C\uDDE8\uD83C\uDDED", name:"LA T\u00c9L\u00c9", url:"https://viamotionhsi.netplus.ch/live/eds/latele/browser-HLS8/latele.m3u8"},
+  {cat:"Suisse Romande", icon:"\uD83C\uDDE8\uD83C\uDDED", name:"NRTV", url:"https://viamotionhsi.netplus.ch/live/eds/nrtv/browser-HLS8/nrtv.m3u8"},
+];
+
+// ── BUILD UI ──
+const catOrder = [...new Set(channels.map(c => c.cat))];
+const catMap = {};
+channels.forEach(c => {
+  if (!catMap[c.cat]) catMap[c.cat] = {icon: c.icon, channels: []};
+  catMap[c.cat].channels.push(c);
+});
+
+document.getElementById('total-count').textContent = `${channels.length} cha\u00eenes \u2022 ${catOrder.length} cat\u00e9gories`;
+
+const container = document.getElementById('categories');
+
+catOrder.forEach(cat => {
+  const data = catMap[cat];
+
+  // Category button
+  const btn = document.createElement('button');
+  btn.className = 'cat-btn';
+  btn.innerHTML = `
+    <span class="cat-icon">${data.icon}</span>
+    ${cat}
+    <span class="cat-count">${data.channels.length}</span>
+    <span class="cat-arrow">\u25B6</span>
+  `;
+
+  // Channel list
+  const list = document.createElement('div');
+  list.className = 'channel-list';
+
+  data.channels.forEach((ch, i) => {
+    const item = document.createElement('div');
+    item.className = 'channel';
+    item.dataset.url = ch.url;
+    item.dataset.name = ch.name;
+    item.innerHTML = `
+      <span class="ch-dot"></span>
+      <span class="ch-name">${ch.name}</span>
+      <span class="ch-play">\u25B6</span>
+    `;
+    item.addEventListener('click', () => playChannel(ch.name, ch.url, item));
+    list.appendChild(item);
+  });
+
+  btn.addEventListener('click', () => {
+    const isOpen = list.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.channel-list').forEach(l => l.classList.remove('open'));
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    if (!isOpen) {
+      list.classList.add('open');
+      btn.classList.add('active');
+      setTimeout(() => btn.scrollIntoView({behavior:'smooth', block:'start'}), 100);
+    }
+  });
+
+  container.appendChild(btn);
+  container.appendChild(list);
+});
+
+// ── PLAYER ──
+const video = document.getElementById('video');
+const playerSection = document.getElementById('player-section');
+const nowPlaying = document.getElementById('now-playing');
+const loadingOverlay = document.getElementById('loading-overlay');
+const toast = document.getElementById('toast');
+let hls = null;
+let currentItem = null;
+
+function playChannel(name, url, item) {
+  // Highlight
+  if (currentItem) currentItem.classList.remove('playing');
+  item.classList.add('playing');
+  currentItem = item;
+
+  nowPlaying.textContent = name;
+  playerSection.classList.add('active');
+  loadingOverlay.classList.add('show');
+
+  // Cleanup previous
+  if (hls) { hls.destroy(); hls = null; }
+  video.src = '';
+
+  // Check if URL is m3u8/HLS
+  const isHLS = url.includes('.m3u8') || url.includes('.m3u');
+
+  if (isHLS && Hls.isSupported()) {
+    hls = new Hls({
+      maxBufferLength: 30,
+      maxMaxBufferLength: 60,
+      startLevel: -1,
+      capLevelToPlayerSize: true
+    });
+    hls.loadSource(url);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      loadingOverlay.classList.remove('show');
+      video.play().catch(() => {});
+    });
+    hls.on(Hls.Events.ERROR, (e, data) => {
+      loadingOverlay.classList.remove('show');
+      if (data.fatal) showToast('Flux indisponible ou g\u00e9obloqu\u00e9');
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    // Native HLS (Safari / iOS)
+    video.src = url;
+    video.addEventListener('loadedmetadata', () => {
+      loadingOverlay.classList.remove('show');
+      video.play().catch(() => {});
+    }, {once: true});
+    video.addEventListener('error', () => {
+      loadingOverlay.classList.remove('show');
+      showToast('Flux indisponible');
+    }, {once: true});
+  } else {
+    loadingOverlay.classList.remove('show');
+    showToast('Format non support\u00e9');
+  }
+
+  // Scroll to top to see player
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function closePlayer() {
+  playerSection.classList.remove('active');
+  if (hls) { hls.destroy(); hls = null; }
+  video.pause();
+  video.src = '';
+  if (currentItem) { currentItem.classList.remove('playing'); currentItem = null; }
+  nowPlaying.textContent = '---';
+}
+
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ── SEARCH ──
+const searchInput = document.getElementById('search');
+const noResults = document.getElementById('no-results');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase().trim();
+  let found = 0;
+
+  document.querySelectorAll('.cat-btn').forEach((btn, i) => {
+    const list = btn.nextElementSibling;
+    const items = list.querySelectorAll('.channel');
+    let catVisible = 0;
+
+    items.forEach(item => {
+      const match = !q || item.dataset.name.toLowerCase().includes(q);
+      item.style.display = match ? '' : 'none';
+      if (match) catVisible++;
+    });
+
+    btn.style.display = (!q || catVisible > 0) ? '' : 'none';
+    found += catVisible;
+
+    // Auto-open matching categories when searching
+    if (q && catVisible > 0) {
+      list.classList.add('open');
+      btn.classList.add('active');
+    } else if (!q) {
+      list.classList.remove('open');
+      btn.classList.remove('active');
+    }
+  });
+
+  noResults.style.display = (q && found === 0) ? 'block' : 'none';
+});
+
+// Timeout for loading
+setTimeout(() => {
+  if (loadingOverlay.classList.contains('show')) {
+    loadingOverlay.classList.remove('show');
+    showToast('Chargement trop long');
+  }
+}, 15000);
+</script>
+</body>
+</html>
